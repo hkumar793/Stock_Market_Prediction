@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import save_model
 import pandas_market_calendars as mcal
 from datetime import timedelta
+from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 
 class StockPricePredictor:
@@ -69,19 +70,19 @@ class StockPricePredictor:
         
         # LSTM layers
         self.model.add(LSTM(128, return_sequences=True))
-        self.model.add(LSTM(64, return_sequences=True))
-        self.model.add(LSTM(32, return_sequences=False))
-
+        self.model.add(LSTM(64, return_sequences=False))
+        # self.model.add(LSTM(32, return_sequences=False))
+ 
         # Dense layers for learning the non-linear relationship
         self.model.add(Dense(25,activation='relu'))
-        self.model.add(Dense(10,activation='relu'))
+        # self.model.add(Dense(10,activation='relu'))
         self.model.add(Dense(5,activation='relu'))  
 
         # Compile the model
         self.model.compile(optimizer='adam', loss='mean_squared_error')
 
         # Train the model
-        self.model.fit(self.x_train, self.y_train, batch_size=1, epochs=2)
+        self.model.fit(self.x_train, self.y_train, batch_size=10, epochs=20)
         print("Model training completed!")
 
 
@@ -102,9 +103,14 @@ class StockPricePredictor:
         columns = ['Open', 'High', 'Low', 'Close', 'Adj Close'] 
         
         for i in range(len(columns)): 
-            column_rmse = np.sqrt(np.mean((inv_pred[:, i] - inv_y_test[:, i]) ** 2))  # RMSE for the i-th column
-            column_rmse=max(column_rmse, 0)
-            rmse_values.append(column_rmse)
+            # column_rmse = np.sqrt(np.mean((inv_pred[:, i] - inv_y_test[:, i]) ** 2))  # RMSE for the i-th column
+            # column_rmse=max(column_rmse, 0)
+            # rmse_values.append(column_rmse)
+            mse = mean_squared_error(inv_y_test[:, i], inv_pred[:, i])
+            rmse = np.sqrt(mse)  # Taking the square root of MSE to get RMSE
+            
+            # Ensure RMSE is non-negative
+            rmse_values.append(max(rmse, 0))
         
         # Now plot RMSE values using plot_rmse function
         self.plot_rmse(rmse_values, columns)
