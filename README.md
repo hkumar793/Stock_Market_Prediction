@@ -38,10 +38,10 @@ Run the setup script to create a virtual environment and install dependencies:
 ./setup.sh
 ```
 
-If you prefer manual installation, you can also run:
+Then activate the virtual environment
 
 ```bash
-pip install -r requirements.txt
+source venv/bin/activate
 ```
 
 ### 3. Run the Project

@@ -20,4 +20,3 @@ echo "Installing required packages from requirements.txt"
 pip install -r requirements.txt
 
 echo "Setup complete. Virtual environment is ready and dependencies are installed."
-echo "Run 'source $VENV_DIR/bin/activate' to activate your virtual environment again when needed."
