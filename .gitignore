@@ -1,0 +1,32 @@
+# Ignore virtual environment
+venv/
+
+# Ignore model output files
+*.keras
+
+# Ignore plot/images
+*.png
+
+# Ignore Python bytecode files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore environment or secrets (if any)
+.env
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore test/coverage/build artifacts
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+build/
+dist/
+*.egg-info/
+
+# System files
+.DS_Store
+Thumbs.db

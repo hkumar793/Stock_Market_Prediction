@@ -1,3 +1,16 @@
+import os
+import logging
+
+# Suppress TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+# Suppress absl logging (used by TensorFlow)
+logging.getLogger('absl').setLevel(logging.ERROR)
+
+import tensorflow as tf
+if not tf.config.list_physical_devices('GPU'):
+    print("Running on CPU: CUDA not available")
+
 import pandas as pd
 import numpy as np
 import yfinance as yf
@@ -30,7 +43,7 @@ class StockPricePredictor:
         print(f"\nDownloading stock data for {self.stock_symbol}...")
         end = datetime.now()
         start = datetime(end.year - 20, end.month, end.day)
-        self.stock_data = yf.download(self.stock_symbol, start=start, end=end)
+        self.stock_data = yf.download(self.stock_symbol, start=start, end=end,auto_adjust=True)
         self.stock_data = self.stock_data.droplevel('Ticker', axis=1)
         print("Data downloaded successfully!")
 
@@ -38,7 +51,14 @@ class StockPricePredictor:
     def prepare_data(self):
         print("\nPreparing data for model training...")
 
-        self.scaled_data = self.scaler.fit_transform(self.stock_data[['Open', 'High', 'Low', 'Close', 'Adj Close']])
+
+        expected_cols = ['Open', 'High', 'Low', 'Close', 'Adj Close']
+        available_cols = [col for col in expected_cols if col in self.stock_data.columns]
+
+        if len(available_cols) < 5:
+            print(f"Warning: Missing columns. Available columns: {available_cols}")
+
+        self.scaled_data = self.scaler.fit_transform(self.stock_data[available_cols])
 
         x_data = []
         y_data = []
@@ -76,7 +96,8 @@ class StockPricePredictor:
         # Dense layers for learning the non-linear relationship
         self.model.add(Dense(25,activation='relu'))
         # self.model.add(Dense(10,activation='relu'))
-        self.model.add(Dense(5,activation='relu'))  
+        num_outputs = self.y_train.shape[1]
+        self.model.add(Dense(num_outputs, activation='relu'))
 
         # Compile the model
         self.model.compile(optimizer='adam', loss='mean_squared_error')
@@ -100,7 +121,7 @@ class StockPricePredictor:
     
         # Calculate RMSE for each column
         rmse_values = []
-        columns = ['Open', 'High', 'Low', 'Close', 'Adj Close'] 
+        columns = self.stock_data.columns.intersection(['Open', 'High', 'Low', 'Close', 'Adj Close']).tolist()
         
         for i in range(len(columns)): 
             # column_rmse = np.sqrt(np.mean((inv_pred[:, i] - inv_y_test[:, i]) ** 2))  # RMSE for the i-th column
@@ -150,14 +171,15 @@ class StockPricePredictor:
         print("\nPredicting next 7 trading days...")
 
         # Prepare data to predict future 7 days (using 5 features)
-        last_100_days = self.x_data[-1].reshape(1, 100, 5)  # 5 features (Open, High, Low, Close, Adj Close)
+        num_features = self.x_data.shape[2]
+        last_100_days = self.x_data[-1].reshape(1, 100, num_features) # 5 features (Open, High, Low, Close, Adj Close)
         predicted_prices = []
 
         # Predict prices for the next 7 days
         for _ in range(7):
             pred_price = self.model.predict(last_100_days) 
             predicted_prices.append(pred_price[0]) 
-            last_100_days = np.append(last_100_days[:, 1:, :], pred_price.reshape(1, 1, 5), axis=1)
+            last_100_days = np.append(last_100_days[:, 1:, :], pred_price.reshape(1, 1, num_features), axis=1)
 
         self.predicted_prices = self.scaler.inverse_transform(np.array(predicted_prices))
 
@@ -170,7 +192,7 @@ class StockPricePredictor:
             current_date = self.get_next_trading_day(current_date)  # Get the next valid trading day
             self.forecast_dates.append(current_date)  # Add it to the forecast dates
 
-        self.prediction_df = pd.DataFrame(self.predicted_prices, columns=['Open', 'High', 'Low', 'Close', 'Adj Close'], index=self.forecast_dates)
+        self.prediction_df = pd.DataFrame(self.predicted_prices, columns = self.stock_data.columns.intersection(['Open', 'High', 'Low', 'Close', 'Adj Close']).tolist(), index=self.forecast_dates)
 
         # Print the prediction DataFrame
         print("\nPredicted stock prices for the next 7 trading days:\n")
@@ -181,7 +203,7 @@ class StockPricePredictor:
 
 
     def plot_predictions(self,prediction_df):
-        columns = ['Open', 'High', 'Low', 'Close', 'Adj Close']
+        columns = self.stock_data.columns.intersection(['Open', 'High', 'Low', 'Close', 'Adj Close']).tolist()
         
         plt.figure(figsize=(12, 8))
     

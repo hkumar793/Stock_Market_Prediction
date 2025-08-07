@@ -1,10 +1,61 @@
-# Stock_Market_Prediction
+# Stock Market Price Predictor
 
-Stock_Market_Prediction.py : Contains the python code for training the model on a particular stock.
-                            The model trained for GOOG(Google) stock and download the last 20 years data from yfinance python library and used the sliding window of 7 days.
+A deep‐learning model that forecasts next‐day stock prices using 20 years of historical data from Yahoo Finance.  
+Built with TensorFlow/Keras LSTM layers and a sliding window approach.
 
-stock_price_model.keras : Trained model saved for reference.
+---
 
-rmse_plot.png : Contains the RMSE/Accuracy plot for 5 stock features (Open, High, Low, Close, Adj Close).
+## Project Overview
 
-predicted_7_day_stock_prices.png : Predicting the 5 stock features for upcoming 7 trading days.
+- **Objective**  
+  Predict the next 7 trading days’ Open, High, Low, Close, and Adjusted Close prices for any ticker symbol using a trained deep-learning model.
+
+- **Key Features**  
+  - Downloads 20 years of daily stock data using `yfinance`  
+  - Supports adjusted or unadjusted prices (`auto_adjust=True`)  
+  - Feature scaling using `MinMaxScaler`  
+  - Two stacked LSTM layers followed by Dense layers  
+  - Handles missing columns dynamically  
+  - Visualizations: RMSE plot and accuracy pie charts for each price column  
+  - 7-day forward prediction with valid NYSE trading dates (via `pandas_market_calendars`)  
+
+---
+
+## Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/hkumar793/Stock_Market_Prediction.git
+cd Stock_Market_Prediction
+```
+
+### 2. Set Up the Environment
+
+Run the setup script to create a virtual environment and install dependencies:
+
+```bash
+./setup.sh
+```
+
+If you prefer manual installation, you can also run:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the Project
+
+```bash
+python Stock_Market_Prediction.py
+```
+
+---
+
+## Output
+
+- 7-day prediction of OHLC (Open, High, Low, Close)
+- RMSE plots for model evaluation  
+- Pie charts comparing prediction accuracy for each price type  
+
+---
