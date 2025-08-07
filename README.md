@@ -1,14 +1,14 @@
 # Stock Market Price Predictor
 
 A deep‐learning model that forecasts next‐day stock prices using 20 years of historical data from Yahoo Finance.  
-Built with TensorFlow/Keras LSTM layers and a sliding window approach.
+Built with TensorFlow/Keras LSTM layers.
 
 ---
 
 ## Project Overview
 
 - **Objective**  
-  Predict the next 7 trading days’ Open, High, Low, Close, and Adjusted Close prices for any ticker symbol using a trained deep-learning model.
+  Predict the next 7 trading days’ Open, High, Low, and Close prices for any ticker symbol using a trained deep-learning model.
 
 - **Key Features**  
   - Downloads 20 years of daily stock data using `yfinance`  
@@ -59,3 +59,4 @@ python Stock_Market_Prediction.py
 - Pie charts comparing prediction accuracy for each price type  
 
 ---
+
